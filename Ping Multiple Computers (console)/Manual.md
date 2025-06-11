@@ -1,0 +1,1 @@
+This simple script takes input of CSV file with column 'ComputerName' and ping every computer included in this file. Returns information wheater computer responded or not in console window.
