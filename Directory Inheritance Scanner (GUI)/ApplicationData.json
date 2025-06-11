@@ -1,0 +1,6 @@
+{
+    "Name":"Directory Inheritence Scanner",
+    "Version":"3.0",
+    "Icon":"icon.ico",
+    "Descryption":"This program perform scans of all subfolders inside given path or multiple paths and check if there are any folders with disabled ACL entries inheritance. Additionally catches cases where folder doesn't exist, path is too long or access is denied."
+}
