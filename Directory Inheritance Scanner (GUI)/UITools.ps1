@@ -31,7 +31,7 @@ class Size {
     }
 
     [int] Get() {
-        return $this.Width, $this.Height;
+        return @($this.Width, $this.Height);
     }
 }
 
@@ -43,15 +43,19 @@ class Window {
     [string] $Icon;
     [string] $StartPosition;
 
-    Window([string] $title, [Size] $size, [hashtable]$options = @{}) {
-        if (-not $options) { $options = @{} }
-        $this.Title = $title;
-        $this.Size = $size;
-        
+    Window([string]$title, [Size]$size, [hashtable]$options = @{}) {
+        $this.Title = $title
+        $this.Size = $size
+
         if ($options.ContainsKey("MinSize")) { $this.MinSize = $options["MinSize"] }
         if ($options.ContainsKey("MaxSize")) { $this.MaxSize = $options["MaxSize"] }
         if ($options.ContainsKey("Icon")) { $this.Icon = $options["Icon"] }
         if ($options.ContainsKey("StartPosition")) { $this.StartPosition = $options["StartPosition"] }
-
     }
 }
+
+$window = [Window]::New("Test Window", [Size]::New(800, 600), @(
+    MinSize =
+    MaxSize =
+    
+))
