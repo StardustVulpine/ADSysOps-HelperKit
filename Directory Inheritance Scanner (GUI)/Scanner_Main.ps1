@@ -4,6 +4,7 @@
 
 $name = "Inheritence Scanner"
 $version = "3.0"
+$icon = "$PSScriptRoot\icon.ico"
 $description =  @"
 This program perform scans of all subfolders inside given path or multiple paths and check if there are any folders with disabled ACL entries inheritance.
 Additionally catches cases where folder doesn't exist, path is too long or access is denied.
@@ -186,7 +187,7 @@ $_GROUP_BOX = [System.Windows.Forms.GroupBox];
     #region Window
         $Window_Main = New-Window -width 500 -height 350 -title "$name v$version";
         $Window_Main.ShowIcon = $true;
-        $Window_Main.Icon = New-Object System.Drawing.Icon "$PSScriptRoot\icon.ico";
+        $Window_Main.Icon = New-Object System.Drawing.Icon $icon;
         
         $Window_Main.StartPosition = "CenterScreen";
         $Window_Main.MinimumSize = New-Object System.Drawing.Size(300,300);
