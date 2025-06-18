@@ -1,61 +1,59 @@
 Using Namespace System;
 Using Namespace System.Drawing;
 Using Namespace System.Windows.Forms;
-Using Namespace System.IO;
-Using Namespace System.Text.Json;
-Using Namespace System.Text.Json.Serialization;
-Using Namespace Utilities;
 
 Add-Type -AssemblyName System;
 Add-Type -AssemblyName System.Drawing;
 Add-Type -AssemblyName System.Windows.Forms;
-Add-Type -AssemblyName System.IO;
-Add-Type -AssemblyName System.Text.Json;
-Add-Type -AssemblyName System.Text.Json.Serialization;
 
 [String] $Global:ProgramName    = "Directory Inheritence Scanner";
 [Float]  $Global:ProgramVersion = "3.0";
 [String]  $Global:ProgramIcon    = "$PSScriptRoot\icon.ico";
 [String]  $Global:ProgramDesc    = "This program perform scans of all subfolders inside given path or multiple paths and check if there are any folders with disabled ACL entries inheritance. Additionally catches cases where folder doesn't exist, path is too long or access is denied.";
 
-# Load C# class from external file
-$csPath = Join-Path $PSScriptRoot 'Utilities\JsonHelper.cs'
-
-if (-not (Test-Path $csPath)) {
-    throw "C# file not found: $csPath"
-}
-
-try {
-    Add-Type -Path $csPath -Language CSharp -ErrorAction Stop
-} catch {
-    throw "Failed to compile C# class: $($_.Exception.Message)"
-}
-
 
 #region Program
-    [Utilities.JsonHelper]::Test()
 
-    #Write-Host "Main function run";
-    #$json = [Utilities.JsonHelper]::Load("$PSScriptRoot\config.json")
-    #Write-Host $json.ExportPath
+[UI]::New().Initialize();
 
-    #[UIBuilder]::New()
+
 #endregion
 
 #region Utilities
-class Utilities {
-   
+class JsonHelper {
+    static [object] Load([string] $Path) {
+        if (-not (Test-Path $Path)) {
+            throw "File not found: $Path"
+        }
+        $json = Get-Content -Raw -Path $Path | ConvertFrom-Json
+        return $json
+    }
+
+    static [void] Export([string] $Path, [object] $Data) {
+        $json = $Data | ConvertTo-Json -Depth 10
+        Set-Content -Path $Path -Value $json -Encoding UTF8
+    }
+
+    static [void] Test() {
+        Write-Host "JsonHelper is working."
+    }
 }
 
 #endregion
 
 #region UI
-class UIBuilder 
+class UI
 {
-    UIBuilder()
+    [Object] $WIN;
+
+    UI()
     {
-        $_window = [Window]::New($Global:ProgramName, [Size]::New(800, 600), [Size]::New(300,300), $Global:ProgramIcon).CreateWindow()
-        $_window.ShowDialog()
+        $this.WIN = [Window]::New($Global:ProgramName, [Size]::New(800, 600), [Size]::New(300,300), $Global:ProgramIcon).CreateWindow()
+
+    }
+
+    [void] Initialize() { 
+        $this.WIN.ShowDialog() 
     }
 }
 
