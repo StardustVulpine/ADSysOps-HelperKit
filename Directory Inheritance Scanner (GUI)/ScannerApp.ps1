@@ -2,28 +2,31 @@ Using Namespace System;
 Using Namespace System.Drawing;
 Using Namespace System.Windows.Forms;
 
-Add-Type -AssemblyName System;
-Add-Type -AssemblyName System.Drawing;
-Add-Type -AssemblyName System.Windows.Forms;
-
 [String] $Global:ProgramName    = "Directory Inheritence Scanner";
 [Float]  $Global:ProgramVersion = "3.0";
 [String]  $Global:ProgramIcon    = "$PSScriptRoot\icon.ico";
 [String]  $Global:ProgramDesc    = "This program perform scans of all subfolders inside given path or multiple paths and check if there are any folders with disabled ACL entries inheritance. Additionally catches cases where folder doesn't exist, path is too long or access is denied.";
 
-#region Program Entry
-class Program 
-{
-    static [void] Main() {
-        Write-Host "Main function run";
+Add-Type -AssemblyName System;
+Add-Type -AssemblyName System.Drawing;
+Add-Type -AssemblyName System.Windows.Forms;
+#Add-Type -Path ".\Directory Inheritance Scanner (GUI)\Utilities\JsonHelper.cs" -Language CSharp
 
-        [UIBuilder]::New()
-    }
-}
-[Program]::Main();
+$csPath = Resolve-Path ".\Directory Inheritance Scanner (GUI)\Utilities\JsonHelper.cs"
+Add-Type -Path $csPath.Path -Language CSharp
+
+#region Program
+    Write-Host "Main function run";
+    $json = [Utilities.JsonHelper]::Load("$PSScriptRoot\config.json")
+    Write-Host $json.ExportPath
+
+    #[UIBuilder]::New()
 #endregion
 
-#region Core Service
+#region Utilities
+class Utilities {
+   
+}
 
 #endregion
 
@@ -32,7 +35,7 @@ class UIBuilder
 {
     UIBuilder()
     {
-        $_window = [Window]::New($Global:ProgramName, [Size]::New(800, 600)).CreateWindow()
+        $_window = [Window]::New($Global:ProgramName, [Size]::New(800, 600), [Size]::New(300,300), $Global:ProgramIcon).CreateWindow()
         $_window.ShowDialog()
     }
 }
