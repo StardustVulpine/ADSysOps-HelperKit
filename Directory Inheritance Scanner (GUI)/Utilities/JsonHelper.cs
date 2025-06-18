@@ -5,20 +5,28 @@ using System.Text.Json.Serialization;
 
 namespace Utilities
 {
-    public class JsonHelper {
-        public static object Load(string path) {
+    public class JsonHelper
+    {
+        public static object Load(string path)
+        {
             var content = File.ReadAllText(path);
             var doc = JsonDocument.Parse(content);
-            return doc.RootElement.Clone(); 
+            return doc.RootElement.Clone();
         }
 
-        public static void Export(string path, object data) {
-            var options = new JsonSerializerOptions {
+        public static void Export(string path, object data)
+        {
+            var options = new JsonSerializerOptions
+            {
                 WriteIndented = true
             };
             var json = JsonSerializer.Serialize(data, options);
             File.WriteAllText(path, json);
         }
-    }
 
+        public static void Test()
+        {
+            Console.WriteLine("nanananana");
+        }
+    }
 }

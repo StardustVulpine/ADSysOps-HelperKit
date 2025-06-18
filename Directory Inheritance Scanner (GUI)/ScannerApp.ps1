@@ -1,6 +1,10 @@
 Using Namespace System;
 Using Namespace System.Drawing;
 Using Namespace System.Windows.Forms;
+Using Namespace System.IO;
+Using Namespace System.Text.Json;
+Using Namespace System.Text.Json.Serialization;
+Using Namespace Utilities;
 
 [String] $Global:ProgramName    = "Directory Inheritence Scanner";
 [Float]  $Global:ProgramVersion = "3.0";
@@ -10,15 +14,56 @@ Using Namespace System.Windows.Forms;
 Add-Type -AssemblyName System;
 Add-Type -AssemblyName System.Drawing;
 Add-Type -AssemblyName System.Windows.Forms;
+Add-Type -AssemblyName System.IO;
+Add-Type -AssemblyName System.Text.Json;
+Add-Type -AssemblyName System.Text.Json.Serialization;
 #Add-Type -Path ".\Directory Inheritance Scanner (GUI)\Utilities\JsonHelper.cs" -Language CSharp
 
-$csPath = Resolve-Path ".\Directory Inheritance Scanner (GUI)\Utilities\JsonHelper.cs"
-Add-Type -Path $csPath.Path -Language CSharp
+#$csPath = Resolve-Path ".\Directory Inheritance Scanner (GUI)\Utilities\JsonHelper.cs"
+#Write-Host "CS Path: "$csPath
+$TypeDefinition = @"
+using System;
+using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Utilities
+{
+    public class JsonHelper
+    {
+        public static object Load(string path)
+        {
+            var content = File.ReadAllText(path);
+            var doc = JsonDocument.Parse(content);
+            return doc.RootElement.Clone();
+        }
+
+        public static void Export(string path, object data)
+        {
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+            var json = JsonSerializer.Serialize(data, options);
+            File.WriteAllText(path, json);
+        }
+
+        public static void Test()
+        {
+            Console.WriteLine("nanananana");
+        }
+    }
+}
+"@
+Add-Type -TypeDefinition $TypeDefinition
+
 
 #region Program
-    Write-Host "Main function run";
-    $json = [Utilities.JsonHelper]::Load("$PSScriptRoot\config.json")
-    Write-Host $json.ExportPath
+    [Utilities.JsonHelper]::Test()
+
+    #Write-Host "Main function run";
+    #$json = [Utilities.JsonHelper]::Load("$PSScriptRoot\config.json")
+    #Write-Host $json.ExportPath
 
     #[UIBuilder]::New()
 #endregion
@@ -67,7 +112,7 @@ class Window
     [string] $Icon;
     [string] $StartPosition;
 
-    [System.Windows.Forms.Form] $Form
+    [Form] $Form
 
     Window([string]$title, [Size]$size) {
         $this.Title = $title;
