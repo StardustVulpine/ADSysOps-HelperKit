@@ -6,56 +6,30 @@ Using Namespace System.Text.Json;
 Using Namespace System.Text.Json.Serialization;
 Using Namespace Utilities;
 
-[String] $Global:ProgramName    = "Directory Inheritence Scanner";
-[Float]  $Global:ProgramVersion = "3.0";
-[String]  $Global:ProgramIcon    = "$PSScriptRoot\icon.ico";
-[String]  $Global:ProgramDesc    = "This program perform scans of all subfolders inside given path or multiple paths and check if there are any folders with disabled ACL entries inheritance. Additionally catches cases where folder doesn't exist, path is too long or access is denied.";
-
 Add-Type -AssemblyName System;
 Add-Type -AssemblyName System.Drawing;
 Add-Type -AssemblyName System.Windows.Forms;
 Add-Type -AssemblyName System.IO;
 Add-Type -AssemblyName System.Text.Json;
 Add-Type -AssemblyName System.Text.Json.Serialization;
-#Add-Type -Path ".\Directory Inheritance Scanner (GUI)\Utilities\JsonHelper.cs" -Language CSharp
 
-#$csPath = Resolve-Path ".\Directory Inheritance Scanner (GUI)\Utilities\JsonHelper.cs"
-#Write-Host "CS Path: "$csPath
-$TypeDefinition = @"
-using System;
-using System.IO;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+[String] $Global:ProgramName    = "Directory Inheritence Scanner";
+[Float]  $Global:ProgramVersion = "3.0";
+[String]  $Global:ProgramIcon    = "$PSScriptRoot\icon.ico";
+[String]  $Global:ProgramDesc    = "This program perform scans of all subfolders inside given path or multiple paths and check if there are any folders with disabled ACL entries inheritance. Additionally catches cases where folder doesn't exist, path is too long or access is denied.";
 
-namespace Utilities
-{
-    public class JsonHelper
-    {
-        public static object Load(string path)
-        {
-            var content = File.ReadAllText(path);
-            var doc = JsonDocument.Parse(content);
-            return doc.RootElement.Clone();
-        }
+# Load C# class from external file
+$csPath = Join-Path $PSScriptRoot 'Utilities\JsonHelper.cs'
 
-        public static void Export(string path, object data)
-        {
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-            var json = JsonSerializer.Serialize(data, options);
-            File.WriteAllText(path, json);
-        }
-
-        public static void Test()
-        {
-            Console.WriteLine("nanananana");
-        }
-    }
+if (-not (Test-Path $csPath)) {
+    throw "C# file not found: $csPath"
 }
-"@
-Add-Type -TypeDefinition $TypeDefinition
+
+try {
+    Add-Type -Path $csPath -Language CSharp -ErrorAction Stop
+} catch {
+    throw "Failed to compile C# class: $($_.Exception.Message)"
+}
 
 
 #region Program
