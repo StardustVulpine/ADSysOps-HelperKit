@@ -11,41 +11,66 @@ Add-Type -AssemblyName System.Windows.Forms;
 Add-Type -AssemblyName System.Xml;
 
 # Setting root directory of repository
-function Get-RepositoryRoot {
-    if ($MyInvocation.MyCommand.Path) {
-        return Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-        Write-Host "Split-Path -Parent `$MyInvocation.MyCommand.Path: $repositoryRoot" -ForegroundColor Cyan
-    } else {
-        return Get-Location
-        Write-Host "Get-Location: $repositoryRoot" -ForegroundColor Cyan
-    }
+$repositoryRoot;
+if ($MyInvocation.MyCommand.Path) {
+    $repositoryRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+    #Write-Host "Split-Path -Parent `$MyInvocation.MyCommand.Path: $repositoryRoot" -ForegroundColor Cyan
+} else {
+    $repositoryRoot = Get-Location
+    #Write-Host "Get-Location: $repositoryRoot" -ForegroundColor Cyan
 }
-$repositoryRoot = Get-RepositoryRoot;
 
 # ------------------------------------------------------------------------------------
 # Modules imports
-Import-Module "$repositoryRoot\Directory Inheritance Scanner (GUI)\Modules\Resolve-EnvPath.psm1"
+Import-Module "$PSScriptRoot\Modules\Resolve-EnvPath.psm1"
+
+# Global Variables
+
+[String]  $Global:ProgramName;
+[Float]   $Global:ProgramVersion;
+[String]  $Global:ProgramIcon;
+[String]  $Global:ProgramDesc;
+[String]  $Global:GlobalExportPath;
+[String]  $Global:LocalExportPath;
 
 
-# Impoprts of XML .configs data
+#region Impoprt XML configs
+Write-Host "Loading configuration files..." -ForegroundColor Cyan
 $globalCfgPath = "$repositoryRoot\global.config";
-Write-Host "globalCfgPath: $globalCfgPath" -ForegroundColor Cyan
+$scannerCfgPath = "$repositoryRoot\Directory Inheritance Scanner (GUI)\.config"
+Write-Host "Global Configuration File at: $globalCfgPath" -ForegroundColor Green
+Write-Host "Scanner Configuration File at: $scannerCfgPath" -ForegroundColor Green
 
+# Import Global configs:
+Write-Host "Loading global configuration..." -ForegroundColor Cyan
 [xml] $globalConfig = Get-Content -LiteralPath $globalCfgPath;
-$rawExportPath = $globalConfig.config.global.add | Where-Object { $_.Key -eq "GlobalExportPath"} | Select-Object -ExpandProperty value;
-$globalExportPath = Resolve-EnvPath -path $rawExportPath;
-Write-Host -ForegroundColor Green "Global Export Path: $globalExportPath"
+$Global:GlobalExportPath = Resolve-EnvPath -path ($globalConfig.config.global.add | Where-Object { $_.Key -eq "GlobalExportPath"} | Select-Object -ExpandProperty value);
+
+Write-Host "Global Config File Loaded with configs:" -ForegroundColor Green
+Write-Host "+ Global Export Path variable set to: $Global:GlobalExportPath"
+
+# Import App configs
+Write-Host "Loading scanner configuration..." -ForegroundColor Cyan
+[xml] $config = Get-Content -LiteralPath $scannerCfgPath;
+$Global:ProgramName = $config.config.scanner.add | Where-Object { $_.Key -eq "Name"} | Select-Object -ExpandProperty value;
+$Global:ProgramVersion = $config.config.scanner.add | Where-Object { $_.Key -eq "Version"} | Select-Object -ExpandProperty value;
+$Global:ProgramIcon = Join-Path $PSScriptRoot ($config.config.scanner.add | Where-Object { $_.Key -eq "Icon"} | Select-Object -ExpandProperty value);
+$Global:ProgramDesc = $config.config.scanner.add | Where-Object { $_.Key -eq "Description"} | Select-Object -ExpandProperty value;
+$Global:LocalExportPath = Resolve-EnvPath -path ($config.config.scanner.add | Where-Object { $_.Key -eq "ExportPath"} | Select-Object -ExpandProperty value);
 
 
-[String]  $Global:ProgramName    = "Directory Inheritence Scanner";
-[Float]   $Global:ProgramVersion = "3.0";
-[String]  $Global:ProgramIcon    = "$PSrepositoryRoot\icon.ico";
-[String]  $Global:ProgramDesc    = "This program perform scans of all subfolders inside given path or multiple paths and check if there are any folders with disabled ACL entries inheritance. Additionally catches cases where folder doesn't exist, path is too long or access is denied.";
+Write-Host "Scanner configs loaded:" -ForegroundColor Green
+Write-Host "+ Program Name          :   $Global:ProgramName"
+Write-Host "+ Program Version       :   $Global:ProgramVersion"
+Write-Host "+ Program Icon          :   $Global:ProgramIcon"
+Write-Host "+ Program Description   :   $Global:ProgramDesc"
+Write-Host "+ Local Export Path     :   $Global:LocalExportPath"
 
+#endregion
 
 #region Program
 
-#[UI]::New().Initialize();
+[UI]::New().Initialize();
 
 
 #endregion
@@ -64,6 +89,13 @@ class UI
         $this.WIN = [Window]::New($Global:ProgramName, [Size]::New(600, 400), [Size]::New(400,300), $Global:ProgramIcon);
 
         $this.testTable = [Table]::New(1, 1, [eDockType]::Fill, @(10,10,10,10), [eBorder]::ShowBorder);
+
+        try {
+            $this.testTable.Padding = System.Windows.Forms.Padding(10,10,10,10);
+        } catch {
+            Write-Error "Error: $($_.Exception.Message)"
+        }
+        
         $this.WIN.GetForm().Controls.Add($this.testTable.GetTable());
     }
 
@@ -215,6 +247,8 @@ class Table
         $this.ColCount = $columnCount;
         $this.DockType = $dockType;
         $this.ShowBorder = $showBorder;
+
+        $this.CreateTable();
     }
 
     [Table] Get() {return $this }
@@ -252,7 +286,13 @@ class Table
                     $this.TABLE.Padding = New-Object System.Windows.Forms.Padding($this.Padding[0])
                 }
             }#>
-            $this.TABLE.Padding = System.Windows.Forms.Padding(10,10,10,10);
+            try {
+                $this.TABLE.Padding = System.Windows.Forms.Padding(10,10,10,10);
+            } catch {
+                Write-Error "Error: $($_.Exception.Message)"
+            }
+
+            #$this.TABLE.Padding = System.Windows.Forms.Padding(10,10,10,10);
         }
         if($null -ne $this.ShowBorder) { 
             $this.TABLE.BackColor = 'Cyan';
