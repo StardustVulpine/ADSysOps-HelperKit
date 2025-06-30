@@ -1,20 +1,51 @@
 Using Namespace System;
 Using Namespace System.Drawing;
 Using Namespace System.Windows.Forms;
+Using Namespace System.Xml;
+Using Namespace System.IO;
+Using Namespace System.IO.Directory;
 
 Add-Type -AssemblyName System;
 Add-Type -AssemblyName System.Drawing;
 Add-Type -AssemblyName System.Windows.Forms;
+Add-Type -AssemblyName System.Xml;
+
+# Setting root directory of repository
+function Get-RepositoryRoot {
+    if ($MyInvocation.MyCommand.Path) {
+        return Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+        Write-Host "Split-Path -Parent `$MyInvocation.MyCommand.Path: $repositoryRoot" -ForegroundColor Cyan
+    } else {
+        return Get-Location
+        Write-Host "Get-Location: $repositoryRoot" -ForegroundColor Cyan
+    }
+}
+$repositoryRoot = Get-RepositoryRoot;
+
+# ------------------------------------------------------------------------------------
+# Modules imports
+Import-Module "$repositoryRoot\Directory Inheritance Scanner (GUI)\Modules\Resolve-EnvPath.psm1"
+
+
+# Impoprts of XML .configs data
+$globalCfgPath = "$repositoryRoot\global.config";
+Write-Host "globalCfgPath: $globalCfgPath" -ForegroundColor Cyan
+
+[xml] $globalConfig = Get-Content -LiteralPath $globalCfgPath;
+$rawExportPath = $globalConfig.config.global.add | Where-Object { $_.Key -eq "GlobalExportPath"} | Select-Object -ExpandProperty value;
+$globalExportPath = Resolve-EnvPath -path $rawExportPath;
+Write-Host -ForegroundColor Green "Global Export Path: $globalExportPath"
+
 
 [String]  $Global:ProgramName    = "Directory Inheritence Scanner";
 [Float]   $Global:ProgramVersion = "3.0";
-[String]  $Global:ProgramIcon    = "$PSScriptRoot\icon.ico";
+[String]  $Global:ProgramIcon    = "$PSrepositoryRoot\icon.ico";
 [String]  $Global:ProgramDesc    = "This program perform scans of all subfolders inside given path or multiple paths and check if there are any folders with disabled ACL entries inheritance. Additionally catches cases where folder doesn't exist, path is too long or access is denied.";
 
 
 #region Program
 
-[UI]::New().Initialize();
+#[UI]::New().Initialize();
 
 
 #endregion
@@ -239,16 +270,30 @@ class Table
 class JsonHelper {
     static [object] Load([string] $Path) {
         if (-not (Test-Path $Path)) {
-            throw "File not found: $Path"
+            throw "File not found: $Path";
         }
-        $json = Get-Content -Raw -Path $Path | ConvertFrom-Json
-        return $json
+        $json = Get-Content -Raw -Path $Path | ConvertFrom-Json;
+        return $json;
     }
 
     static [void] Export([string] $Path, [object] $Data) {
-        $json = $Data | ConvertTo-Json -Depth 10
-        Set-Content -Path $Path -Value $json -Encoding UTF8
+        $json = $Data | ConvertTo-Json -Depth 10;
+        Set-Content -Path $Path -Value $json -Encoding UTF8;
     }
 }
+
+class Utilities {
+    static [string] GetrepositoryRoot() {
+        if ($MyInvocation.MyCommand.Path) {
+            return Split-Path -Parent $MyInvocation.MyCommand.Path
+        } else {
+            return Get-Location
+        }
+    }
+}
+
+
+
+
 
 #endregion
