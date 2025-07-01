@@ -11,6 +11,8 @@ class JsonHelper {
         $json = $Data | ConvertTo-Json -Depth 10;
         Set-Content -Path $Path -Value $json -Encoding UTF8;
     }
-}
 
-Export-ModuleMember *;
+    static [void] Test([string] $message) {
+        Write-Host $message
+    }
+}
