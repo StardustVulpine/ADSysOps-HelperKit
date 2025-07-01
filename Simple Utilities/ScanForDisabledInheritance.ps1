@@ -74,7 +74,6 @@ function Get-FolderInheritanceInformation
         Write-Host -ForegroundColor Yellow "$DateTime2 - Started scanning $FoldersTotal folders"
         ForEach($Folder in $listOfFolders)
         {
-
             $checkedFoldersCount++
             $prec = [Math]::Round((($checkedFoldersCount/$FoldersTotal)*100), 2); 
             Write-Progress -Activity "Checking folders." -Status "$checkedFoldersCount/$FoldersTotal ($prec%). Cannot access path: $foldersNotExists, Access denied: $foldersWithNoAccess folders, Folders without inheritance: $foldersWithoutInheritence ;   " -PercentComplete $prec -CurrentOperation "Scanning $Folder";
@@ -112,7 +111,7 @@ function Get-FolderInheritanceInformation
                 }
                 $PermissionInfo += $Permissions
             }
-            catch [Microsoft.PowerShell.Commands.GetAclCommand.GetAcl_PathNotFound] {
+            catch [System.IO.DirectoryNotFoundException] {
                 # Catch and report not existing folder
                 [string] $DateTime6 = Get-Date -Format "(dd-MM-yyyy; HH-mm-ss)";
                 Write-Host -ForegroundColor Yellow "$DateTime6 - The following folder path could not be ressolved:`n$Folder"
@@ -126,9 +125,38 @@ function Get-FolderInheritanceInformation
                 $PermissionInfo += $Permissions
             }
             catch {
-                Write-Host -ForegroundColor Red "Unhandled exeption has occured!";
-                Write-Host "Error details:`n";
-                Write-Host $_;
+                if($Error[0].Exception -is [System.UnauthorizedAccessException])
+                {
+                    $foldersWithNoAccess++
+                    [string] $DateTime5 = Get-Date -Format "(dd-MM-yyyy; HH-mm-ss)";
+                    Write-Host -ForegroundColor Red "$DateTime5 - Access denied to $pathToFolder"
+                    $folderName = $pathToFolder -split "\";
+
+                    $Permissions = [PSCustomObject]@{
+                        "Folder Name" =  $folderName[-1]
+                        "Path" = $pathToFolder
+                        "Issue:" = "Access denied"
+                    }
+                    $PermissionInfo += $Permissions
+                } elseif ($Error[0].Exception -is [System.IO.DirectoryNotFoundException])
+                {
+                    # Catch and report not existing folder
+                    [string] $DateTime6 = Get-Date -Format "(dd-MM-yyyy; HH-mm-ss)";
+                    Write-Host -ForegroundColor Yellow "$DateTime6 - The following folder path could not be ressolved:`n$Folder"
+                    $foldersNotExists++
+
+                    $Permissions = [PSCustomObject]@{
+                        "Folder Name" = $Acl.PSChildName
+                        "Path" = $Folder
+                        "Issue:" = "Path could not be resolved"
+                    }
+                    $PermissionInfo += $Permissions
+                } else {
+                    Write-Host -ForegroundColor Red "Unhandled exeption has occured!";
+                    Write-Host "Error details:`n";
+                    Write-Host $_;
+                }
+                
             }
         }
         $PermissionInfo | Export-Csv -Path $ExportPathTrue -Encoding UTF8 -NoTypeInformation
