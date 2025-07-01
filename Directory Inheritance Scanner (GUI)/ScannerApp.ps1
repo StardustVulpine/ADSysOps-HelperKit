@@ -91,7 +91,8 @@ class UI
         $this.testTable = [Table]::New(1, 1, [eDockType]::Fill, @(10,10,10,10), [eBorder]::ShowBorder);
 
         try {
-            $this.testTable.Padding = System.Windows.Forms.Padding(10,10,10,10);
+            $this.testTable.TABLE.AutoSize = $false;
+            $this.testTable.TABLE.Margin = "10,10,10,10";
         } catch {
             Write-Error "Error: $($_.Exception.Message)"
         }
@@ -271,7 +272,7 @@ class Table
         }
         if($null -ne $this.AutoSize) { $this.TABLE.AutoSize = $this.AutoSize}
         if($null -ne $this.Padding) {
-            Write-Host $this.Padding.Count;
+            #Write-Host $this.Padding.Count;
             <#if($this.Padding.Count -eq 4) {
                 if ($this.TABLE.Dock -eq "Fill") {
                     $this.TABLE.Margin = New-Object System.Windows.Forms.Padding($this.Padding[0], $this.Padding[1], $this.Padding[2], $this.Padding[3])
@@ -286,11 +287,11 @@ class Table
                     $this.TABLE.Padding = New-Object System.Windows.Forms.Padding($this.Padding[0])
                 }
             }#>
-            try {
-                $this.TABLE.Padding = System.Windows.Forms.Padding(10,10,10,10);
-            } catch {
-                Write-Error "Error: $($_.Exception.Message)"
-            }
+            # try {
+            #     $this.TABLE.Padding = System.Windows.Forms.Padding(10,10,10,10);
+            # } catch {
+            #     Write-Error "Error: $($_.Exception.Message)"
+            # }
 
             #$this.TABLE.Padding = System.Windows.Forms.Padding(10,10,10,10);
         }
