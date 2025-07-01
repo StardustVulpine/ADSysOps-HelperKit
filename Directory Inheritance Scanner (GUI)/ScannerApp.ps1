@@ -31,6 +31,8 @@ if ($MyInvocation.MyCommand.Path) {
 Import-Module "$repositoryRoot\Directory Inheritance Scanner (GUI)\Modules\Resolve-EnvPath.psm1" -Force
 Import-Module "$repositoryRoot\Directory Inheritance Scanner (GUI)\classes\json\JsonHelper.psm1" -Force
 Import-Module "$repositoryRoot\Directory Inheritance Scanner (GUI)\classes\ui\Size.psm1" -Force
+Import-Module "$repositoryRoot\Directory Inheritance Scanner (GUI)\classes\ui\Window.psm1" -Force
+Import-Module "$repositoryRoot\Directory Inheritance Scanner (GUI)\classes\ui\Table.psm1" -Force
 
 
 

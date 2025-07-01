@@ -5,8 +5,8 @@ Using Namespace System.Xml;
 Using Namespace System.IO;
 Using Namespace System.IO.Directory;
 
-. ".\Directory Inheritance Scanner (GUI)\enums\eDockType.ps1"
-. ".\Directory Inheritance Scanner (GUI)\enums\eBorder.ps1"
+. "..\enums\eDockType.ps1"
+. "..\enums\eBorder.ps1"
 
 class UI_Table
 {
