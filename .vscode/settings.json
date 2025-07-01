@@ -1,0 +1,15 @@
+{
+  "powershell.scriptAnalysis.enable": true,
+  "powershell.scriptAnalysis.settingsPath": ".",
+  "powershell.powerShellAdditionalExePaths": [],
+  "powershell.powerShellDefaultVersion": "7",
+  "powershell.powerShellExePath": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+  "powershell.powerShellIntegratedConsole.showOnStartup": true,
+  "powershell.codeFormatting.preset": "Custom",
+  "files.associations": {
+    "*.ps1": "powershell"
+  },
+  "powershell.editorServices.scriptAnalysis.scriptPaths": [
+    "./Main.ps1"
+  ]
+}
