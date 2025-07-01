@@ -1,0 +1,4 @@
+enum eBorder {
+    ShowBorder
+    NoBorder
+}
