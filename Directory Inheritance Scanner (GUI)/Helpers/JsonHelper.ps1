@@ -12,5 +12,3 @@ class JsonHelper {
         Set-Content -Path $Path -Value $json -Encoding UTF8;
     }
 }
-
-Export-ModuleMember *;
