@@ -14,7 +14,7 @@ function Get-FolderInheritanceInformation
             $FoldersNames += $Temporary  
         }
     }while($check -eq 1)
-    Write-host "Type the location for those folders (ex. Villotta, San Polo, etc):"
+    Write-host "Type the location for those folders: "
     $location = Read-Host
     #-------------------------------------------------------
 
