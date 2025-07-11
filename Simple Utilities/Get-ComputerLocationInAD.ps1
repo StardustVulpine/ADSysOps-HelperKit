@@ -1,7 +1,6 @@
 Import-Module ActiveDirectory
 Add-Type -AssemblyName System.Windows.Forms
 
-# Prompt for two domain names
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Enter Domain Names"
 $form.Width = 400
@@ -47,7 +46,6 @@ if (-not $primaryDomain) {
     exit
 }
 
-# Prompt user to select the CSV
 $FileDialog = New-Object System.Windows.Forms.OpenFileDialog
 $FileDialog.Filter = "CSV files (*.csv)|*.csv"
 $FileDialog.Title = "Select a CSV file with a 'ComputerName' column"
@@ -57,9 +55,8 @@ if (-not $FileDialog.FileName) {
     Write-Host "No file selected. Exiting."
     exit
 }
-# Import CSV
-$computers = Import-Csv -Path $FileDialog.FileName
 
+$computers = Import-Csv -Path $FileDialog.FileName
 $results = @()
 
 function Get-ADComputerFromDomain($computerName, $domain) {
