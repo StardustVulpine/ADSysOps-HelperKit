@@ -1,6 +1,5 @@
 Add-Type -AssemblyName System.Windows.Forms
 
-# Open file picker dialog
 $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
 $openFileDialog.Filter = "CSV files (*.csv)|*.csv"
 $openFileDialog.Title = "Select CSV Input File with 'ComputerName' column"
@@ -12,7 +11,6 @@ if ($openFileDialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) {
 
 $CsvPath = $openFileDialog.FileName
 
-# Import the list of computer names
 if (-Not (Test-Path $CsvPath)) {
     Write-Host "CSV file not found: $CsvPath" -ForegroundColor Red
     exit 1
